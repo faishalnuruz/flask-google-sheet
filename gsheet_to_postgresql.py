@@ -19,7 +19,6 @@ import gspread
 import pandas as pd
 import sys
 import logging
-import psycopg2
 from sqlalchemy import create_engine
 from flask import Flask, redirect, url_for, request, render_template 
 
@@ -31,7 +30,7 @@ def success(name, work):
     scope = ['https://spreadsheets.google.com/feeds']
     
     #attach credential file from developer google (API)
-    credentials = service_account.Credentials.from_service_account_file('gsheet-209013-e8cb4121c03b.json', scopes=scope)
+    credentials = service_account.Credentials.from_service_account_file('file(API from gsheet).json', scopes=scope)
     gc = gspread.Client(auth=credentials)
     gc.session = AuthorizedSession(credentials)
     
@@ -56,7 +55,20 @@ def success(name, work):
     
     df.columns = df.iloc[0]
     mantap = df.reindex(df.index.drop(0))
-            
+    
+    #Load to Table
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    try:
+        conn = create_engine('postgresql://username:hostname:5432/password')
+    except:
+        logger.error("ERROR: Unexpected error: Could not connect to PostgreSQL instance.")
+        sys.exit()
+
+    logger.info("SUCCESS: Connection to RDS PostgreSQL instance succeeded")
+
+    df.to_sql(name + '_' + suffix , conn, if_exists='replace', index=None)        
     return render_template('flask.html', tables=[mantap.head().to_html()], sheet=names, worksheet=suffixs, hasil=names + '_' + suffixs )
 
 @app.route('/index',methods = ['POST', 'GET'])
