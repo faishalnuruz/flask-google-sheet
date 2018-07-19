@@ -1,0 +1,11 @@
+<!doctype html>
+<title>Simple tables</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div align="center">
+  <h1>Sheet Name: {% print(sheet) %}</h1>
+  <h1>Worksheet Name: {% print(worksheet) %}</h1>
+  {% for table in tables %}
+    <h2>Table Name: {% print(hasil) %}</c</h2>
+    {{ table|safe }}
+  {% endfor %}
+</div>
